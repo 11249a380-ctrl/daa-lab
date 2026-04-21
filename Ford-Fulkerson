@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <limits.h>
+#include <string.h>
+
+#define MAX 10
+
+int cap[MAX][MAX], visited[MAX];
+int n;
+
+int min(int a, int b) {
+    return (a < b) ? a : b;
+}
+
+// DFS to find augmenting path
+int dfs(int s, int t, int flow) {
+    if (s == t)
+        return flow;
+
+    visited[s] = 1;
+
+    for (int v = 0; v < n; v++) {
+        if (!visited[v] && cap[s][v] > 0) {
+            int curr_flow = min(flow, cap[s][v]);
+            int temp_flow = dfs(v, t, curr_flow);
+
+            if (temp_flow > 0) {
+                cap[s][v] -= temp_flow;
+                cap[v][s] += temp_flow;
+                return temp_flow;
+            }
+        }
+    }
+
+    return 0;
+}
+
+int main() {
+    int s, t, max_flow = 0;
+
+    printf("Enter number of vertices: ");
+    scanf("%d", &n);
+
+    printf("Enter capacity matrix:\n");
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            scanf("%d", &cap[i][j]);
+
+    printf("Enter source and sink: ");
+    scanf("%d %d", &s, &t);
+
+    int flow;
+
+    while (1) {
+        memset(visited, 0, sizeof(visited));
+        flow = dfs(s, t, INT_MAX);
+        if (flow == 0)
+            break;
+        max_flow += flow;
+    }
+
+    printf("Maximum flow: %d\n", max_flow);
+
+    return 0;
+}
